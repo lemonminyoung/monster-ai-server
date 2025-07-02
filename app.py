@@ -9,7 +9,7 @@ try:
     print(f"Gemini 모델이 성공적으로 로드되었습니다.")
 except Exception as e:
     print(f"API Key 설정 중 에러 발생: {e}")
-    global_gemini_model = None # 모델 로드 실패 시 None으로 설정
+    #global_gemini_model = None # 모델 로드 실패 시 None으로 설정
 
 # '/api/ask' Post 엔드 포인트
 @app.route("/api/ask", methods=["POST"])
@@ -25,9 +25,6 @@ def ask_gemini():
     persona = data.get("persona", "당신은 '크럼블'이라는 이름의 망치바위 거인입니다. 느리고 묵직한 말투를 사용하며, 말수가 적습니다. 자신의 힘에 대한 자부심이 강하며, 공격받을수록 분노를 드러내세요. 위압적이고 거친 분위기를 풍깁니다.") # 기본 페르소나 설정
     if not question:
         return jsonify({"error": "Missing 'question' in request body"}), 400
-    # 모델이 로드되지 않았다면 에러 반환
-    if global_gemini_model is None:
-        return jsonify({"error": "AI model not initialized"}), 500
     try:
         model = genai.GenerativeModel('gemini-1.5-flash')
         # 성격 프롬프트
