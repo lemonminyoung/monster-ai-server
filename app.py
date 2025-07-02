@@ -59,7 +59,7 @@ def ask_gemini():
     if persona_id is None or persona_id not in PERSONAS:
         # 유효하지 않은 persona_id일 경우 기본 페르소나 (예: 아이언하트)를 사용하거나
         # 에러를 반환하도록 선택할 수 있습니다. 여기서는 기본 페르소나를 사용합니다.
-        selected_persona = PERSONAS[5]["description"] # 기본값으로 아이언하트 페르소나 사용
+        selected_persona = PERSONAS[4]["description"] # 기본값으로 아이언하트 페르소나 사용
         print(f"[{datetime.datetime.now()}] Invalid or missing persona_id: {persona_id}. Using default persona.")
     else:
         selected_persona = PERSONAS[persona_id]["description"]
