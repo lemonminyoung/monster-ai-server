@@ -5,7 +5,7 @@ import google.generativeai as genai
 app = Flask(__name__)
 try:
     genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
-    global_gemini_model = genai.GenerativeModel('gemini-1.5-flash')
+    #global_gemini_model = genai.GenerativeModel('gemini-1.5-flash')
     print(f"Gemini 모델이 성공적으로 로드되었습니다.")
 except Exception as e:
     print(f"API Key 설정 중 에러 발생: {e}")
@@ -29,11 +29,11 @@ def ask_gemini():
     if global_gemini_model is None:
         return jsonify({"error": "AI model not initialized"}), 500
     try:
-        model_to_use = global_gemini_model
+        model = genai.GenerativeModel('gemini-1.5-flash')
         # 성격 프롬프트
         full_question = f"{persona}\n\n사용자 질문: {question}"
         
-        response = model_to_use.generate_content(full_question) # 변경된 부분
+        response = model.generate_content(full_question)
         return jsonify({"answer": response.text})
 
     except Exception as e:
