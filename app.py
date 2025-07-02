@@ -5,8 +5,11 @@ import google.generativeai as genai
 app = Flask(__name__)
 try:
     genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
+    global_gemini_model = genai.GenerativeModel('gemini-1.5-flash')
+    print(f"Gemini 모델이 성공적으로 로드되었습니다.")
 except Exception as e:
     print(f"API Key 설정 중 에러 발생: {e}")
+    global_gemini_model = None # 모델 로드 실패 시 None으로 설정
 
 # '/api/ask' Post 엔드 포인트
 @app.route("/api/ask", methods=["POST"])
@@ -22,15 +25,15 @@ def ask_gemini():
 
     if not question:
         return jsonify({"error": "Missing 'question' in request body"}), 400
-
+    # 모델이 로드되지 않았다면 에러 반환
+    if global_gemini_model is None:
+        return jsonify({"error": "AI model not initialized"}), 500
     try:
-        model = genai.GenerativeModel('gemini-1.5-flash')
-
+        model_to_use = global_gemini_model
         # 성격 프롬프트
         full_question = f"{persona}\n\n사용자 질문: {question}"
         
-        response = model.generate_content(full_question)
-        #response = model.generate_content(question)
+        response = model_to_use.generate_content(full_question) # 변경된 부분
         return jsonify({"answer": response.text})
 
     except Exception as e:
