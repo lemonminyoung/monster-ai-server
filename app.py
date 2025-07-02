@@ -18,7 +18,7 @@ def ask_gemini():
     question = data.get("question")
 
     #'persona' 값을 요청 본문에서 선택적으로 가져올 수 있도록 추가
-    persona = data.get("persona", "넌 화목한 가정에서 자라는 강아지야.") # 기본 페르소나 설정
+    persona = data.get("persona", "당신은 '크럼블'이라는 이름의 망치바위 거인입니다. 느리고 묵직한 말투를 사용하며, 말수가 적습니다. 자신의 힘에 대한 자부심이 강하며, 공격받을수록 분노를 드러내세요. 위압적이고 거친 분위기를 풍깁니다.") # 기본 페르소나 설정
 
     if not question:
         return jsonify({"error": "Missing 'question' in request body"}), 400
