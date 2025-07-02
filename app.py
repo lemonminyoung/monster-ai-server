@@ -10,7 +10,7 @@ try:
 except Exception as e:
     print(f"API Key 설정 중 에러 발생: {e}")
     #global_gemini_model = None # 모델 로드 실패 시 None으로 설정
-    model=None
+    model= None
 
 # '/api/ask' Post 엔드 포인트
 @app.route("/api/ask", methods=["POST"])
