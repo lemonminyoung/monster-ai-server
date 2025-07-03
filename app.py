@@ -3,6 +3,8 @@ from flask import Flask, request, jsonify
 import google.generativeai as genai
 import datetime
 
+import json # JSON 응답 파싱을 위해 임포트
+
 app = Flask(__name__)
 
 # --- 페르소나 정의 딕셔너리 ---
@@ -55,28 +57,85 @@ def ask_gemini():
     if not question:
         return jsonify({"error": "Missing 'question' in request body"}), 400
 
+    selected_persona_desc = ""
+    selected_persona_name = ""
+
     # persona_id를 사용하여 해당 페르소나 설명을 가져옵니다.
     # persona_id가 없거나 유효하지 않으면 기본 페르소나를 사용하거나 에러를 반환할 수 있습니다.
+    # persona_id를 사용하여 해당 페르소나 설명을 가져옵니다.
     if persona_id is None or persona_id not in PERSONAS:
-        # 유효하지 않은 persona_id일 경우 기본 페르소나 (예: 아이언하트)를 사용하거나
-        # 에러를 반환하도록 선택할 수 있습니다. 여기서는 기본 페르소나를 사용합니다.
-        selected_persona = PERSONAS[4]["description"] # 기본값으로 아이언하트 페르소나 사용
-        print(f"[{datetime.datetime.now()}] Invalid or missing persona_id: {persona_id}. Using default persona.")
+        # 유효하지 않은 persona_id일 경우 기본 페르소나 (아이언하트)를 사용합니다.
+        selected_persona_desc = PERSONAS[5]["description"]
+        selected_persona_name = PERSONAS[5]["name"]
+        print(f"[{datetime.datetime.now()}] Invalid or missing persona_id: {persona_id}. Using default persona ({selected_persona_name}).")
     else:
-        selected_persona = PERSONAS[persona_id]["description"]
-        print(f"[{datetime.datetime.now()}] Selected persona for ID {persona_id}: {PERSONAS[persona_id]['name']}")
+        selected_persona_desc = PERSONAS[persona_id]["description"]
+        selected_persona_name = PERSONAS[persona_id]["name"]
+        print(f"[{datetime.datetime.now()}] Selected persona for ID {persona_id}: {selected_persona_name}")
         
     try:
+        # 단일 AI 호출: 페르소나에 기반한 답변과 감정 점수를 동시에 생성
         model = genai.GenerativeModel('gemini-1.5-flash')
-        # 성격 프롬프트
-        full_question = f"{selected_persona}\n\n사용자 질문: {question}"
-
-        print(f"[{datetime.datetime.now()}] Sending question with persona (first 50 chars): {selected_persona[:50]}...")
-        print(f"[{datetime.datetime.now()}] Actual Full Question Sent (first 100 chars):\n{full_question[:100]}...\n---END FULL QUESTION---\n")
         
-        response = model.generate_content(full_question)
-        print(f"[{datetime.datetime.now()}] Received response (first 50 chars): {response.text[:50]}...")
-        return jsonify({"answer": response.text})
+        # AI에게 답변과 감정 점수를 JSON 형태로 반환하도록 지시하는 프롬프트
+        combined_prompt = (
+            f"당신은 '{selected_persona_name}'이라는 이름의 캐릭터입니다. "
+            f"당신의 페르소나는 다음과 같습니다: {selected_persona_desc}\n\n"
+            f"사용자의 다음 질문에 대해 당신의 페르소나에 맞춰 답변해주세요. "
+            f"답변 후, 사용자의 질문에 대한 당신의 기분(감정)을 -2(매우 나쁨), -1(나쁨), 0(중립), +1(좋음), +2(매우 좋음) 중 하나의 정수 점수로 평가해주세요. "
+            f"당신의 응답은 반드시 JSON 형태로, 'answer' 필드에 당신의 답변을, 'sentiment_score' 필드에 감정 점수를 포함해야 합니다. "
+            f"예시: `{{\"answer\": \"안녕하세요!\", \"sentiment_score\": 1}}`\n\n"
+            f"사용자 질문: {question}"
+        )
+
+        # JSON 스키마를 사용하여 응답 형식을 강제합니다.
+        combined_generation_config = {
+            "response_mime_type": "application/json",
+            "response_schema": {
+                "type": "OBJECT",
+                "properties": {
+                    "answer": {"type": "STRING"},
+                    "sentiment_score": {"type": "INTEGER", "minimum": -2, "maximum": 2}
+                },
+                "required": ["answer", "sentiment_score"] # 이 필드들이 반드시 포함되도록 합니다.
+            }
+        }
+
+        print(f"[{datetime.datetime.now()}] Sending combined prompt (first 100 chars):\n{combined_prompt[:100]}...\n---END COMBINED PROMPT---\n")
+
+        response_combined = model.generate_content(
+            combined_prompt,
+            generation_config=combined_generation_config
+        )
+        
+        ai_answer = "AI가 답변을 생성하지 못했습니다." # 기본 답변
+        sentiment_score = 0 # 기본 감정 점수 (중립)
+
+        try:
+            # AI 응답은 이제 JSON 문자열 형태이므로 파싱합니다.
+            combined_data_str = response_combined.text
+            if combined_data_str: # 응답이 비어있지 않은지 확인
+                combined_data = json.loads(combined_data_str)
+                # 'answer'와 'sentiment_score' 필드를 가져옵니다.
+                ai_answer = combined_data.get("answer", ai_answer)
+                sentiment_score = combined_data.get("sentiment_score", 0) 
+            print(f"[{datetime.datetime.now()}] Received combined response: Answer='{ai_answer[:50]}...', Sentiment={sentiment_score}")
+        except json.JSONDecodeError as json_e:
+            # JSON 파싱 오류 발생 시 로그 출력 및 기본값 사용
+            print(f"[{datetime.datetime.now()}] JSON decode error for combined response: {json_e}. Raw response: {combined_data_str}")
+            ai_answer = "AI가 응답 형식을 지키지 못했습니다. (JSON 파싱 오류)"
+            sentiment_score = 0
+        except Exception as general_e:
+            # 기타 오류 발생 시 로그 출력 및 기본값 사용
+            print(f"[{datetime.datetime.now()}] General error processing combined response: {general_e}. Raw response: {combined_data_str}")
+            ai_answer = "AI 응답 처리 중 오류 발생."
+            sentiment_score = 0
+
+        # AI의 답변과 감정 점수를 함께 클라이언트에게 반환합니다.
+        return jsonify({
+            "answer": ai_answer,
+            "sentiment_score": sentiment_score
+        })
 
     except Exception as e:
         print(f"An error occurred: {e}")
