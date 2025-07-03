@@ -68,7 +68,7 @@ def ask_gemini():
     try:
         model = genai.GenerativeModel('gemini-1.5-flash')
         # 성격 프롬프트
-        full_question = f"{persona}\n\n사용자 질문: {question}"
+        full_question = f"{selected_persona}\n\n사용자 질문: {question}"
 
         print(f"[{datetime.datetime.now()}] Sending question with persona (first 50 chars): {selected_persona[:50]}...")
         print(f"[{datetime.datetime.now()}] Actual Full Question Sent (first 100 chars):\n{full_question[:100]}...\n---END FULL QUESTION---\n")
