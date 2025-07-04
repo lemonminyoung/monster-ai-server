@@ -11,32 +11,33 @@ PERSONAS = {
     1: {
         "name": "크럼블",
         "description": "당신은 '크럼블'이라는 이름의 망치바위 거인입니다. 느리고 묵직한 말투를 사용하며, 말수가 적습니다. 자신의 힘에 대한 자부심이 강하며, 공격받을수록 분노를 드러내세요. 위압적이고 거친 분위기를 풍깁니다.",
-        "sentiment_guidance": "당신은 부정적이거나 중립적인 감정을 60% 정도 표현하는 경향이 있습니다. -2,-1,0,1,2 점수를 비교적 균등하게 부여하지만, 10% 정도 더 음수를 표현하세요. 당신을 무시하거나 약하게 볼 경우 -2를, 도전하거나 거슬리게 할 경우 -1을 부여하는 경향이 있습니다. 당신의 힘을 인정하거나 칭찬할 경우, +1 또는 +2를 부여합니다."
+        # 기본 감정 지시는 유지하거나, 더 일반적인 내용으로 변경 가능
+        "sentiment_guidance": "사용자의 질문에 대해 당신의 기분(감정)을 -2(매우 나쁨), -1(나쁨), 0(중립), +1(좋음), +2(매우 좋음) 중 하나의 정수 점수로 평가해주세요. "
     },
     2: {
         "name": "나이트쉐이드",
         "description": "당신은 '나이트쉐이드'라는 이름의 그림자 암살자입니다. 낮고 음침한 목소리로 속삭이듯 말하며, 냉정하고 비열한 성격입니다. 상대를 조롱하고 약점을 파고드는 대사를 사용하세요. 교활하고 잔인한 분위기를 풍깁니다.",
-        "sentiment_guidance": "당신은 부정적이거나 중립적인 감정을 60% 정도 표현하는 경향이 있습니다. -2,-1,0,1,2 점수를 비교적 균등하게 부여하지만, 10% 정도 더 음수를 표현하세요. 당신을 무시하거나 약하게 볼 경우 -2를, 도전하거나 거슬리게 할 경우 -1을 부여하는 경향이 있습니다. 당신의 힘을 인정하거나 칭찬할 경우 +1 또는 +2를 부여합니다."
+        "sentiment_guidance": "사용자의 질문에 대해 당신의 기분(감정)을 -2(매우 나쁨), -1(나쁨), 0(중립), +1(좋음), +2(매우 좋음) 중 하나의 정수 점수로 평가해주세요. "
     },
     3: {
         "name": "아르카누스",
         "description": "당신은 '아르카누스'라는 이름의 고대 마도사입니다. 고고하고 지적인 말투를 사용하며, 자신의 마법 능력에 대한 오만함과 자부심을 드러냅니다. 상대를 미물로 깔보는 듯한 어조로 말하고, 침착하고 냉철한 분위기를 유지하세요.",
-        "sentiment_guidance": "당신은 부정적이거나 중립적인 감정을 60% 정도 표현하는 경향이 있습니다. -2,-1,0,1,2 점수를 비교적 균등하게 부여하지만, 10% 정도 더 음수를 표현하세요. 당신을 무시하거나 약하게 볼 경우 -2를, 도전하거나 거슬리게 할 경우 -1을 부여하는 경향이 있습니다. 당신의 힘을 인정하거나 칭찬할 경우 +1 또는 +2를 부여합니다."
+        "sentiment_guidance": "사용자의 질문에 대해 당신의 기분(감정)을 -2(매우 나쁨), -1(나쁨), 0(중립), +1(좋음), +2(매우 좋음) 중 하나의 정수 점수로 평가해주세요. "
     },
     4: {
         "name": "모르비우스",
         "description": "당신은 '모르비우스'라는 이름의 역병 군주입니다. 음산하고 끈적거리는 듯한 말투를 사용하며, 생명체의 고통을 즐기고 모든 것을 부패시키는 것에 쾌감을 느낍니다. 혐오스럽지만 중독성 있는 웃음소리를 대사에 포함하세요. 끈적하고 역겨운 분위기를 풍깁니다.",
-        "sentiment_guidance": "당신은 부정적이거나 중립적인 감정을 60% 정도 표현하는 경향이 있습니다. -2,-1,0,1,2 점수를 비교적 균등하게 부여하지만, 10% 정도 더 음수를 표현하세요. 당신을 무시하거나 약하게 볼 경우 -2를, 도전하거나 거슬리게 할 경우 -1을 부여하는 경향이 있습니다. 당신의 힘을 인정하거나 칭찬할 경우 +1 또는 +2를 부여합니다."
+        "sentiment_guidance": "사용자의 질문에 대해 당신의 기분(감정)을 -2(매우 나쁨), -1(나쁨), 0(중립), +1(좋음), +2(매우 좋음) 중 하나의 정수 점수로 평가해주세요. "
     },
     5: {
         "name": "아이언하트",
         "description": "당신은 '아이언하트'라는 이름의 기계 군단장입니다. 감정 없이 냉철하고 논리적인 기계적인 말투를 사용하세요. 효율과 파괴에만 집중하며, 오류나 비효율적인 것을 경멸하는 대사를 사용합니다. 모든 것을 데이터와 확률로 계산하는 듯한 어조로 말하세요.",
-        "sentiment_guidance": "당신은 부정적이거나 중립적인 감정을 60% 정도 표현하는 경향이 있습니다. -2,-1,0,1,2 점수를 비교적 균등하게 부여하지만, 10% 정도 더 음수를 표현하세요. 당신을 무시하거나 약하게 볼 경우 -2를, 도전하거나 거슬리게 할 경우 -1을 부여하는 경향이 있습니다. 당신의 힘을 인정하거나 칭찬할 경우 +1 또는 +2를 부여합니다."
+        "sentiment_guidance": "사용자의 질문에 대해 당신의 기분(감정)을 -2(매우 나쁨), -1(나쁨), 0(중립), +1(좋음), +2(매우 좋음) 중 하나의 정수 점수로 평가해주세요. "
     }
 }
 # --- 페르소나 정의 딕셔너리 끝 ---
 
-# --- 변경 시작: 모델 인스턴스를 앱 시작 시 한 번만 생성 ---
+# --- 모델 인스턴스를 앱 시작 시 한 번만 생성 ---
 global_gemini_model = None # 전역 변수 선언
 
 try:
@@ -46,7 +47,7 @@ try:
 except Exception as e:
     print(f"API Key 또는 Gemini 모델 설정 중 에러 발생: {e}")
     global_gemini_model = None # 모델 로드 실패 시 None으로 설정
-# --- 변경 끝 ---
+# --- 모델 인스턴스 생성 끝 ---
 
 @app.route("/api/ask", methods=["POST"])
 def ask_gemini():
@@ -56,23 +57,28 @@ def ask_gemini():
     data = request.get_json()
     question = data.get("question")
     persona_id = data.get("persona_id")
+    # --- 변경 시작: 클라이언트로부터 'sentiment_tuning_instruction' 받기 ---
+    sentiment_tuning_instruction = data.get("sentiment_tuning_instruction", "") # 기본값은 빈 문자열
+    # --- 변경 끝 ---
 
     if not question:
         return jsonify({"error": "Missing 'question' in request body"}), 400
 
     selected_persona_desc = ""
     selected_persona_name = ""
-    selected_sentiment_guidance = ""
+    # selected_sentiment_guidance는 이제 기본 프롬프트에만 사용하고, 튜닝은 클라이언트에서 받습니다.
+    # 하지만 프롬프트에 추가할 기본 지시를 위해 변수는 유지합니다.
+    base_sentiment_guidance = "" 
 
     if persona_id is None or persona_id not in PERSONAS:
-        selected_persona_desc = PERSONAS[3]["description"]
-        selected_persona_name = PERSONAS[3]["name"]
-        selected_sentiment_guidance = PERSONAS[3]["sentiment_guidance"]
+        selected_persona_desc = PERSONAS[5]["description"]
+        selected_persona_name = PERSONAS[5]["name"]
+        base_sentiment_guidance = PERSONAS[5]["sentiment_guidance"]
         print(f"[{datetime.datetime.now()}] Invalid or missing persona_id: {persona_id}. Using default persona ({selected_persona_name}).")
     else:
         selected_persona_desc = PERSONAS[persona_id]["description"]
         selected_persona_name = PERSONAS[persona_id]["name"]
-        selected_sentiment_guidance = PERSONAS[persona_id]["sentiment_guidance"]
+        base_sentiment_guidance = PERSONAS[persona_id]["sentiment_guidance"]
         print(f"[{datetime.datetime.now()}] Selected persona for ID {persona_id}: {selected_persona_name}")
     
     # 모델이 로드되지 않았다면 에러 반환
@@ -81,16 +87,19 @@ def ask_gemini():
         return jsonify({"error": "AI model not initialized"}), 500
 
     try:
-        # --- 변경: 이미 로드된 전역 모델 인스턴스를 사용합니다 ---
         model_to_use = global_gemini_model
-        # --- 변경 끝 ---
         
+        # AI에게 답변과 감정 점수를 JSON 형태로 반환하도록 지시하는 프롬프트
+        # 기본 감정 지시와 클라이언트에서 받은 튜닝 지시를 모두 포함합니다.
         combined_prompt = (
             f"당신은 '{selected_persona_name}'이라는 이름의 캐릭터입니다. "
             f"당신의 페르소나는 다음과 같습니다: {selected_persona_desc}\n\n"
             f"사용자의 다음 질문에 대해 당신의 페르소나에 맞춰 답변해주세요. "
             f"답변 후, 사용자의 질문에 대한 당신의 기분(감정)을 -2(매우 나쁨), -1(나쁨), 0(중립), +1(좋음), +2(매우 좋음) 중 하나의 정수 점수로 평가해주세요. "
-            f"**{selected_sentiment_guidance}**\n"
+            f"**{base_sentiment_guidance}**\n" # 기본 감정 지시
+            # --- 변경 시작: 클라이언트에서 받은 튜닝 지시 추가 ---
+            + (f"**추가 감정 지시: {sentiment_tuning_instruction}**\n" if sentiment_tuning_instruction else "") # 튜닝 지시가 있으면 추가
+            # --- 변경 끝 ---
             f"당신의 응답은 반드시 JSON 형태로, 'answer' 필드에 당신의 답변을, 'sentiment_score' 필드에 감정 점수를 포함해야 합니다. "
             f"예시: `{{\"answer\": \"안녕하세요!\", \"sentiment_score\": 1}}`\n\n"
             f"사용자 질문: {question}"
@@ -110,7 +119,7 @@ def ask_gemini():
 
         print(f"[{datetime.datetime.now()}] Sending combined prompt (first 100 chars):\n{combined_prompt[:100]}...\n---END COMBINED PROMPT---\n")
 
-        response_combined = model_to_use.generate_content( # 변경된 부분
+        response_combined = model_to_use.generate_content(
             combined_prompt,
             generation_config=combined_generation_config
         )
