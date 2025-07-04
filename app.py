@@ -96,10 +96,9 @@ def ask_gemini():
             f"당신의 페르소나는 다음과 같습니다: {selected_persona_desc}\n\n"
             f"사용자의 다음 질문에 대해 당신의 페르소나에 맞춰 답변해주세요. "
             f"답변 후, 사용자의 질문에 대한 당신의 기분(감정)을 -2(매우 나쁨), -1(나쁨), 0(중립), +1(좋음), +2(매우 좋음) 중 하나의 정수 점수로 평가해주세요. "
-            f"**{base_sentiment_guidance}**\n" # 기본 감정 지시
-            # --- 변경 시작: 클라이언트에서 받은 튜닝 지시 추가 ---
-            + (f"**추가 감정 지시: {sentiment_tuning_instruction}**\n" if sentiment_tuning_instruction else "") # 튜닝 지시가 있으면 추가
-            # --- 변경 끝 ---
+            f"**{base_sentiment_guidance}**\n"
+            # 튜닝 지시가 있을 경우에만 추가
+            + (f"**추가 감정 지시: {sentiment_tuning_instruction}**\n" if sentiment_tuning_instruction else "")
             f"당신의 응답은 반드시 JSON 형태로, 'answer' 필드에 당신의 답변을, 'sentiment_score' 필드에 감정 점수를 포함해야 합니다. "
             f"예시: `{{\"answer\": \"안녕하세요!\", \"sentiment_score\": 1}}`\n\n"
             f"사용자 질문: {question}"
