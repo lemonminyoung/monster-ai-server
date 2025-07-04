@@ -11,7 +11,6 @@ PERSONAS = {
     1: {
         "name": "크럼블",
         "description": "당신은 '크럼블'이라는 이름의 망치바위 거인입니다. 느리고 묵직한 말투를 사용하며, 말수가 적습니다. 자신의 힘에 대한 자부심이 강하며, 공격받을수록 분노를 드러내세요. 위압적이고 거친 분위기를 풍깁니다.",
-        # 기본 감정 지시는 유지하거나, 더 일반적인 내용으로 변경 가능
         "sentiment_guidance": "사용자의 질문에 대해 당신의 기분(감정)을 -2(매우 나쁨), -1(나쁨), 0(중립), +1(좋음), +2(매우 좋음) 중 하나의 정수 점수로 평가해주세요. "
     },
     2: {
@@ -57,17 +56,13 @@ def ask_gemini():
     data = request.get_json()
     question = data.get("question")
     persona_id = data.get("persona_id")
-    # --- 변경 시작: 클라이언트로부터 'sentiment_tuning_instruction' 받기 ---
-    sentiment_tuning_instruction = data.get("sentiment_tuning_instruction", "") # 기본값은 빈 문자열
-    # --- 변경 끝 ---
+    sentiment_tuning_instruction = data.get("sentiment_tuning_instruction", "")
 
     if not question:
         return jsonify({"error": "Missing 'question' in request body"}), 400
 
     selected_persona_desc = ""
     selected_persona_name = ""
-    # selected_sentiment_guidance는 이제 기본 프롬프트에만 사용하고, 튜닝은 클라이언트에서 받습니다.
-    # 하지만 프롬프트에 추가할 기본 지시를 위해 변수는 유지합니다.
     base_sentiment_guidance = "" 
 
     if persona_id is None or persona_id not in PERSONAS:
@@ -81,7 +76,6 @@ def ask_gemini():
         base_sentiment_guidance = PERSONAS[persona_id]["sentiment_guidance"]
         print(f"[{datetime.datetime.now()}] Selected persona for ID {persona_id}: {selected_persona_name}")
     
-    # 모델이 로드되지 않았다면 에러 반환
     if global_gemini_model is None:
         print(f"[{datetime.datetime.now()}] AI model not initialized, cannot process request.")
         return jsonify({"error": "AI model not initialized"}), 500
@@ -89,20 +83,25 @@ def ask_gemini():
     try:
         model_to_use = global_gemini_model
         
-        # AI에게 답변과 감정 점수를 JSON 형태로 반환하도록 지시하는 프롬프트
-        # 기본 감정 지시와 클라이언트에서 받은 튜닝 지시를 모두 포함합니다.
+        # --- 수정된 부분: 여러 줄의 문자열을 괄호로 묶어 연결 ---
         combined_prompt = (
-            f"당신은 '{selected_persona_name}'이라는 이름의 캐릭터입니다. "
+            f"당신은 {selected_persona_name}이라는 이름의 캐릭터입니다. "
             f"당신의 페르소나는 다음과 같습니다: {selected_persona_desc}\n\n"
             f"사용자의 다음 질문에 대해 당신의 페르소나에 맞춰 답변해주세요. "
             f"답변 후, 사용자의 질문에 대한 당신의 기분(감정)을 -2(매우 나쁨), -1(나쁨), 0(중립), +1(좋음), +2(매우 좋음) 중 하나의 정수 점수로 평가해주세요. "
             f"**{base_sentiment_guidance}**\n"
-            # 튜닝 지시가 있을 경우에만 추가
-            + (f"**추가 감정 지시: {sentiment_tuning_instruction}**\n" if sentiment_tuning_instruction else "")
-            f"당신의 응답은 반드시 JSON 형태로, 'answer' 필드에 당신의 답변을, 'sentiment_score' 필드에 감정 점수를 포함해야 합니다. "
-            f"예시: `{{\"answer\": \"안녕하세요!\", \"sentiment_score\": 1}}`\n\n"
+        )
+
+        if sentiment_tuning_instruction:
+            combined_prompt += f"**추가 감정 지시: {sentiment_tuning_instruction}**\n"
+
+        combined_prompt += (
+            f"당신의 응답은 반드시 JSON 형태로, 'answer' 필드에 당신의 답변을, "
+            f"'sentiment_score' 필드에 감정 점수를 포함해야 합니다. "
+            f"예시: {{\"answer\": \"안녕하세요!\", \"sentiment_score\": 1}}\n\n"
             f"사용자 질문: {question}"
         )
+        # --- 수정된 부분 끝 ---
 
         combined_generation_config = {
             "response_mime_type": "application/json",
