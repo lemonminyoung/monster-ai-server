@@ -76,6 +76,7 @@ def ask_gemini():
         # --- 수정된 부분: 여러 줄의 문자열을 괄호로 묶어 연결 ---
         combined_prompt = (
             f"당신은 {selected_persona_name}이라는 이름의 캐릭터입니다. "
+            f"당신의 대답은 200자를 넘어가면 안됩니다."
             f"당신의 페르소나는 다음과 같습니다: {selected_persona_desc}\n\n"
             f"사용자의 다음 질문에 대해 당신의 페르소나에 맞춰 답변해주세요. "
             f"**{base_sentiment_guidance}**\n"
