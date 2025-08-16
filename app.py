@@ -6,6 +6,12 @@ import json
 
 app = Flask(__name__)
 
+from flask import Response  # 맨 위 import에 없으면 추가
+
+@app.get("/health")
+def health():
+    return Response(status=204)  # 본문 없음, LLM 호출 없음
+
 # --- 페르소나 정의 딕셔너리 ---
 PERSONAS = {
     1: {
