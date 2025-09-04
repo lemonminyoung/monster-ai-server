@@ -4,6 +4,9 @@ import google.generativeai as genai
 import datetime
 import json
 
+# 채
+from flask import Response
+
 app = Flask(__name__)
 
 from flask import Response  # 맨 위 import에 없으면 추가
@@ -44,6 +47,63 @@ except Exception as e:
     global_gemini_model = None # 모델 로드 실패 시 None으로 설정
 # --- 모델 인스턴스 생성 끝 ---
 
+# --- day_key & 무드 유틸 ---(채)
+KST_OFFSET_SEC = 9 * 3600
+MOODS = ["CALM", "ANGRY", "SAD", "HAPPY", "TRICKY"]
+SECRET_SALT = os.environ.get("MOOD_SALT", "replace-with-a-long-random-salt")
+
+def get_kst_day_key(offset_days: int = 0) -> int:
+    """KST(UTC+9) 기준으로 날짜 단위 key를 반환. offset_days로 테스트 이동."""
+    now_utc = datetime.datetime.utcnow()
+    kst = now_utc + datetime.timedelta(seconds=KST_OFFSET_SEC) + datetime.timedelta(days=offset_days)
+    epoch = datetime.datetime(1970, 1, 1)
+    days = int((kst - epoch).total_seconds() // 86400)
+    return days
+
+def pick_mood_for_day(day_key: int) -> str:
+    """day_key + 솔트로 결정적 무드 선택(서버 재시작/분산환경에서도 동일)."""
+    import hashlib, random
+    h = hashlib.sha256(f"{day_key}:{SECRET_SALT}".encode("utf-8")).hexdigest()
+    seed = int(h[:16], 16)
+    rnd = random.Random(seed)
+    return rnd.choice(MOODS)
+
+def seconds_until_next_kst_midnight() -> int:
+    """실시간 기준 다음 KST 자정까지 남은 초(캐싱 힌트)."""
+    now_utc = datetime.datetime.utcnow()
+    kst = now_utc + datetime.timedelta(seconds=KST_OFFSET_SEC)
+    next_midnight_kst = (kst + datetime.timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+    delta = next_midnight_kst - kst
+    return max(1, int(delta.total_seconds()))
+# --- day_key & 무드 유틸 끝 ---(채)
+
+# ---------------------------------------------------------
+# 오늘의 무드 API (오프셋 지원)(채)
+# ---------------------------------------------------------
+@app.get("/api/mood-of-day")
+def mood_of_day():
+    """
+    MapleStory Worlds 서버/스크립트가 조회하는 '오늘의 보스 무드' API.
+    ?offset=N 으로 테스트 시뮬레이션 가능(예: 1=내일, -1=어제).
+    """
+    try:
+        offset = int(request.args.get("offset", 0))
+    except ValueError:
+        offset = 0
+
+    day_key = get_kst_day_key(offset)
+    mood = pick_mood_for_day(day_key)
+    ttl = seconds_until_next_kst_midnight()
+    payload = {
+        "day_key": day_key,
+        "mood": mood,
+        "ttl_seconds": ttl,         # 캐시 힌트(실시간 KST 자정 기준)
+        "timezone": "Asia/Seoul",
+        "note": f"offset={offset} (테스트용; 운영에선 생략 권장)"
+    }
+    return jsonify(payload), 200
+# --- 끝(채)
+
 @app.route("/api/ask", methods=["POST"])
 def ask_gemini():
     if not request.is_json:
@@ -54,6 +114,13 @@ def ask_gemini():
     persona_id = data.get("persona_id")
     sentiment_tuning_instruction = data.get("sentiment_tuning_instruction", "")
 
+    # 테스트용: ask에도 offset 허용(없으면 0)(채)
+    try:
+        offset = int(data.get("offset", 0))
+    except (TypeError, ValueError):
+        offset = 0
+    # 테스트용: ask에도 offset 허용(없으면 0)끝
+    
     if not question:
         return jsonify({"error": "Missing 'question' in request body"}), 400
 
@@ -76,6 +143,11 @@ def ask_gemini():
         print(f"[{datetime.datetime.now()}] AI model not initialized, cannot process request.")
         return jsonify({"error": "AI model not initialized"}), 500
 
+     # 오늘(또는 offset) 무드 계산(채)
+    day_key = get_kst_day_key(offset)
+    today_mood = pick_mood_for_day(day_key)
+    mood_hint = f"오늘의 보스 무드(KST 기준)는 '{today_mood}'입니다. 이 무드에 맞게 어휘/톤/리액션 가중치를 조정하세요."
+    
     try:
         model_to_use = global_gemini_model
         
@@ -84,6 +156,7 @@ def ask_gemini():
             f"당신은 {selected_persona_name}이라는 이름의 캐릭터입니다. "
             f"당신의 대답은 200자를 넘어가면 안됩니다."
             f"당신의 페르소나는 다음과 같습니다: {selected_persona_desc}\n\n"
+            f"{mood_hint}\n" #채
             f"사용자의 다음 질문에 대해 당신의 페르소나에 맞춰 답변해주세요. "
             f"**{base_sentiment_guidance}**\n"
         )
@@ -140,7 +213,11 @@ def ask_gemini():
 
         return jsonify({
             "answer": ai_answer,
-            "sentiment_score": sentiment_score
+            "sentiment_score": sentiment_score,
+            "mood_of_day": today_mood,                         # 오늘 무드
+            "day_key": day_key,                                #  KST 기준 날짜 키
+            "offset": offset,                                  # 테스트 오프셋 회신
+            "ttl_seconds": seconds_until_next_kst_midnight() 
         })
 
     except Exception as e:
